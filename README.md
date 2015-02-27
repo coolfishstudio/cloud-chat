@@ -1,4 +1,4 @@
 cloud-chat
 ==========
 
-socket.io＋angular 聊天室
+socket.io聊天室
