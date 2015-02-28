@@ -24,9 +24,12 @@ io.sockets.on('connection', function(socket){
 		//users 对象中不存在该用户名则插入该用户名
 		if(!users[obj.user]){
 			users[obj.user] = obj.user;
+			//向所有用户广播该用户上线信息
+			socket.emit('onlineSuccess');
+			io.sockets.emit('online', {users: users, user: obj.user});
+		}else{
+			socket.emit('onlineError');
 		}
-		//向所有用户广播该用户上线信息
-		io.sockets.emit('online', {users: users, user: obj.user});
 	});
 	//有人下线
 	socket.on('disconnect', function(){
@@ -35,11 +38,27 @@ io.sockets.on('connection', function(socket){
 			//从 users 对象中删除该用户名
 			delete users[socket.name];
 			//向其他所有用户广播该用户下线信息
-			socket.broadcast.emit('offline', {users: users, user: socket.name});
+			io.sockets.emit('offline', {users: users, user: socket.name});
 		}
 	});
 	//有人说话
-
+	socket.on('say', function(data){
+		if(data.to == 'all'){
+			//向其他所有用户广播该用户发话信息
+			socket.broadcast.emit('say', data);
+		}else{
+			//向特定用户发送该用户发话信息
+			//clients 为存储所有连接对象的数组
+			var clients = io.sockets.clients();
+			//遍历找到该用户
+			clients.forEach(function(client){
+				if(client.name == data.to){
+					//触发该用户客户端的 say 事件
+					client.emit('say', data);
+				}
+			});
+		}
+	});
 });
 
 
