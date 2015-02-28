@@ -51,6 +51,7 @@ window.onload = function(){
 		oContents.innerHTML += sys;
 		flushUsers(data.users);
 		showSayTo();
+		scrollDown();
 	});
 
 	socket.on('offline', function(data){
@@ -61,6 +62,7 @@ window.onload = function(){
 			to = "all";
 		}
 		showSayTo();
+		scrollDown();
 	});
 
 	socket.on('say', function(data){
@@ -71,6 +73,7 @@ window.onload = function(){
 		if(data.to == name){
 			oContents.innerHTML += '<div style="color:#00f" > ' + tool.getTime() + ' [' + data.from + '] 对 [你] 说：<br/>' + data.msg + '</div><br />';
 		}
+		scrollDown();
 	});
 	
 	//服务器关闭
@@ -78,6 +81,7 @@ window.onload = function(){
 		var sys = '<div style="color:#f00">系统:连接服务器失败！</div>';
 		oContents.innerHTML += sys + '<br/>';
 		oList.innerHTML = '';
+		scrollDown();
 	});
 
 	//重新启动服务器
@@ -85,9 +89,14 @@ window.onload = function(){
 		var sys = '<div style="color:#f00">系统:重新连接服务器！</div>';
 		oContents.innerHTML += sys + '<br/>';
 		socket.emit('online', {user: name});
+		scrollDown();
 	});
 
 	oSay.onclick = function(){
+		say();
+	}
+
+	function say(){
 		//获取要发送的信息
 		var msg = document.getElementById('input_content').innerHTML;
 		if(msg == ''){
@@ -101,8 +110,8 @@ window.onload = function(){
 		//发送发话信息
 		socket.emit('say', {from: name, to: to, msg: msg});
 		document.getElementById('input_content').innerHTML = '';
+		scrollDown();
 	}
-
 
 	function flushUsers(users){
 		oList.innerHTML = '';
@@ -126,7 +135,17 @@ window.onload = function(){
 		oFrom.innerHTML = name;
 		oTo.innerHTML = (to == "all" ? "所有人" : to);
 	}
+	
+	document.onkeydown = function(event){
+		var e = event || window.event || arguments.callee.caller.arguments[0];
+		if(e && e.keyCode == 13){
+			say();
+		}
+	};
 
+	function scrollDown(){
+		oContents.scrollTop = oContents.scrollHeight;
+	}
 };
 
 var tool = {
