@@ -109,6 +109,17 @@ window.onload = function(){
 		for(var i in users){
 			oList.innerHTML += '<li alt="' + users[i] + '" title="单击私聊" onselectstart="return false">' + users[i] + '</li>';
 		};
+		var lis = oList.childNodes;
+		for(var i = 0; i < lis.length; i++){
+			lis[i].onclick = function(){
+				if(this.innerHTML != name && this.innerHTML != to){
+					to = this.innerHTML;
+				}else{
+					to = 'all';
+				}
+				showSayTo();
+			};
+		}
 	}
 
 	function showSayTo(){
